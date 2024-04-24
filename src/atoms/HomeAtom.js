@@ -21,7 +21,7 @@ function HomeAtom({passcode}) {
         reveal={isOpened}
         revealContent={
             <div className='print-me-area revealed' onClick={() => setOpened(false)}>
-                    <h1>Passded Data:{passcode?.meta} </h1>
+                    <h1>Pass Data:{passcode?.meta} </h1>
             </div> 
         }
         >
