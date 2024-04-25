@@ -1,13 +1,15 @@
-import logo from './logo.svg';
-import './App.css';
-import Home from './Sections/Home';
+// import logo from './logo.svg';
+// import './App.css';
+// import Home from './Sections/Home';
 
-function App() {
-  return (
-    <div className="App">
-   <Home/>
-    </div>
-  );
-}
 
-export default App;
+// function App() {
+
+//   return (
+//     <div className="App">
+//    <Home/>
+//     </div>
+//   );
+// }
+
+// export default App;
