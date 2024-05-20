@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import "./homeAtom.css"
 import { CircularRevealPanel } from 'react-circular-reveal';
+import PrintMe from './PrintMe';
 
 function HomeAtom({passcode}) {
     const [isOpened, setOpened] = useState(false);
@@ -20,8 +21,9 @@ function HomeAtom({passcode}) {
         <CircularRevealPanel
         reveal={isOpened}
         revealContent={
-            <div className='print-me-area revealed' onClick={() => setOpened(false)}>
-                    <h1>Pass Data:{passcode?.meta} </h1>
+            <div className='print-me-area revealed'>
+{/* /            <div className='print-me-area revealed' onClick={() => setOpened(false)}> */}
+                <PrintMe payload={passcode?.meta}/>
             </div> 
         }
         >

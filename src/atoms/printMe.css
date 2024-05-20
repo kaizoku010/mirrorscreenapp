@@ -1,0 +1,10 @@
+@media print {
+    /* Hide all other elements except the printable content */
+    .print-page {
+        display: none !important;
+      }
+    
+      .printable-content {
+        display: block !important;
+      }
+    }

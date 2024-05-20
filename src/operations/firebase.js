@@ -10,7 +10,7 @@ const firebaseConfig = {
   projectId: "mirrorapp-ee00d",
   storageBucket: "mirrorapp-ee00d.appspot.com",
   messagingSenderId: "35890729930",
-  appId: "1:35890729930:web:7b1796506b474b89013533"
+  appId: "1:35890729930:web:91bfcccad1d03b5d013533"
 };
 
 // Initialize Firebase
