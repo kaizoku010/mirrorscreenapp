@@ -1,4 +1,5 @@
 import { initializeApp } from "firebase/app";
+
 import { 
   getFirestore,
   collection,
@@ -19,10 +20,18 @@ import {
   startAfter,
   arrayUnion
 } from "firebase/firestore";
-
-// import { AppRegistry } from 'react-native';
-// import App from './App.js';
-// import { name as appName } from './app.json';
+import { 
+  getDatabase,
+  ref,
+  onValue,
+  orderByChild,
+  child, 
+  equalTo,
+  push
+} from "firebase/database";
+import { AppRegistry } from 'react-native';
+import App from './App.js';
+import { name as appName } from './app.json';
 
 
 // TODO: Add SDKs for Firebase products that you want to use
@@ -43,8 +52,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 // const auth = getAuth(app);
 const db = getFirestore(app);
+const database = getDatabase(app)
 
-// AppRegistry.registerComponent(appName, () => App);
+AppRegistry.registerComponent(appName, () => App);
 
 export {
   where,
@@ -57,9 +67,15 @@ export {
   query,
   addDoc,
   serverTimestamp,
+  onAuthStateChanged,
+  setPersistence,
   collection,
   onSnapshot,
   getDocs,
+  createUserWithEmailAndPassword,
+  database,
+  ref,
+  onValue,
   setDoc,
   limit,
   startAfter,

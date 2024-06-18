@@ -20,9 +20,9 @@ import {
   arrayUnion
 } from "firebase/firestore";
 
-// import { AppRegistry } from 'react-native';
-// import App from './App.js';
-// import { name as appName } from './app.json';
+import { AppRegistry } from 'react-native';
+import App from './App.js';
+import { name as appName } from './app.json';
 
 
 // TODO: Add SDKs for Firebase products that you want to use
@@ -44,7 +44,7 @@ const app = initializeApp(firebaseConfig);
 // const auth = getAuth(app);
 const db = getFirestore(app);
 
-// AppRegistry.registerComponent(appName, () => App);
+AppRegistry.registerComponent(appName, () => App);
 
 export {
   where,

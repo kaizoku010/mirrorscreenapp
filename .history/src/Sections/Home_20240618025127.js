@@ -5,7 +5,7 @@ function Home() {
  
     return (
         <div>
-            <HomeAtom passcode={"payload"}/>
+            <HomeAtom passcode={payload}/>
         </div>
     );
 }

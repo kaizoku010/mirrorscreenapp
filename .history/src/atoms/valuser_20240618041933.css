@@ -1,0 +1,22 @@
+.user-image{
+    width: 20%;
+}
+
+.card-holder{
+    margin-top: 10%;
+    display: flex;
+}
+
+.card-right-side{
+    margin-left: 5%;
+}
+
+.new-data-header{
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+
+}
+
+.card-data{
+
+    margin: 5%;
+}

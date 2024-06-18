@@ -8,20 +8,16 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import Root from './Sections/Home';
-import Validate_ from './atoms/Valuser';
+import Validate from './atoms/Validate';
 
 
 const router = createBrowserRouter([
   {
     path: "*",
     element: <Root/>,
-  
-  },
-
-  {
     path:"validate",
-    element:<Validate_/>
-  }
+    element:<Validate/>
+  },
 ]);
 
 

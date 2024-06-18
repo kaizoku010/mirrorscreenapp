@@ -2,13 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CircularRevealPanel } from 'react-circular-reveal';
 import PrintMe from './PrintMe';
-import { db, collection, onSnapshot, query, where } from '../operations/firebase';
+import { db, collection, onSnapshot } from '../operations/firebase';
 import "./homeAtom.css";
 
 function HomeAtom({ passcode }) {
   const [isOpened, setOpened] = useState(false);
   const [code, setCode] = useState('');
-  const [checkedInIds, setCheckedInIds] = useState(new Set()); // Track checked-in IDs
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -23,22 +22,13 @@ function HomeAtom({ passcode }) {
         if (change.type === 'added') {
           const newCheck = change.doc.data();
           console.log('New check-in data: ', newCheck);
-          // Check if the attendee ID is already checked in
-          if (!checkedInIds.has(newCheck.uid)) {
-            // Navigate to Valuser with new data
-            navigate('/validate', { state: { data: newCheck } });
-            // Update checked-in IDs
-            setCheckedInIds(prevIds => new Set([...prevIds, newCheck.uid]));
-          } else {
-            console.log(`Attendee ${newCheck.name} with ID ${newCheck.uid} is already checked in.`);
-            // Handle already checked-in feedback (optional)
-          }
+          navigate('/validate', { state: { data: newCheck } }); // Navigate to Valuser with new data
         }
       });
     });
 
     return () => unsubscribe();
-  }, [passcode, navigate, checkedInIds]);
+  }, [passcode, navigate]);
 
   return (
     <CircularRevealPanel

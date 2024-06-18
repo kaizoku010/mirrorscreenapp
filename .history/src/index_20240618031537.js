@@ -19,8 +19,7 @@ const router = createBrowserRouter([
   },
 
   {
-    path:"validate",
-    element:<Validate_/>
+    
   }
 ]);
 

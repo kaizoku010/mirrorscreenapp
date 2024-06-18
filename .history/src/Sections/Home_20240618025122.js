@@ -3,9 +3,20 @@ import HomeAtom from '../atoms/HomeAtom';
 
 function Home() {
  
+if(data!== undefined){
+    setPayload(data)
+    pieSocket.disconnect();
+}
+
+      
+        // Handle the received data as needed
+    };
+
+
+  
     return (
         <div>
-            <HomeAtom passcode={"payload"}/>
+            <HomeAtom passcode={payload}/>
         </div>
     );
 }

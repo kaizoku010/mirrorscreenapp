@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'; // Assuming you're using React Router for navigation
 import { CircularRevealPanel } from 'react-circular-reveal';
 import PrintMe from './PrintMe';
-import { db, collection, onSnapshot, query, where } from '../operations/firebase';
+import { db, collection, onSnapshot } from '../operations/firebase';
 import "./homeAtom.css";
 
 function HomeAtom({ passcode }) {
   const [isOpened, setOpened] = useState(false);
   const [code, setCode] = useState('');
-  const [checkedInIds, setCheckedInIds] = useState(new Set()); // Track checked-in IDs
-  const navigate = useNavigate();
+  const history = useNavigate(); // Use history for navigation
 
   useEffect(() => {
     if (passcode?.meta) {
@@ -17,28 +16,24 @@ function HomeAtom({ passcode }) {
       setCode(object);
     }
 
+    // Set up Firestore listener
     const checksRef = collection(db, 'checks');
     const unsubscribe = onSnapshot(checksRef, (snapshot) => {
       snapshot.docChanges().forEach((change) => {
         if (change.type === 'added') {
           const newCheck = change.doc.data();
           console.log('New check-in data: ', newCheck);
-          // Check if the attendee ID is already checked in
-          if (!checkedInIds.has(newCheck.uid)) {
-            // Navigate to Valuser with new data
-            navigate('/validate', { state: { data: newCheck } });
-            // Update checked-in IDs
-            setCheckedInIds(prevIds => new Set([...prevIds, newCheck.uid]));
-          } else {
-            console.log(`Attendee ${newCheck.name} with ID ${newCheck.uid} is already checked in.`);
-            // Handle already checked-in feedback (optional)
-          }
+          // Navigate to a new page with the new data
+          history('/new-page', { data: newCheck }); // Adjust the path as per your routing setup
+          // Or you can update the state to show the new data
+          // setOpened(true);
         }
       });
     });
 
+    // Clean up the listener on unmount
     return () => unsubscribe();
-  }, [passcode, navigate, checkedInIds]);
+  }, [passcode, history]);
 
   return (
     <CircularRevealPanel
@@ -53,7 +48,7 @@ function HomeAtom({ passcode }) {
         <div className='text-holder'>
           <h1 className='hello-text'>Hello</h1>
           <h2 className='welcome-text'>Welcome</h2>
-          <p className='please-me-text'>Please enter your passcode below to check-in</p>
+          <p className='please-me-text'>please enter your passcode below to check-in</p>
           <input 
             enterKeyHint='099c41' 
             name='passcode' 
