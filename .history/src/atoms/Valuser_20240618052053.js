@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { db, collection, onSnapshot, doc, updateDoc } from '../operations/firebase'; // Adjust firebase imports as per your setup
-import EditModal from './EditModal'; // Import your EditModal component
 import "./valuser.css";
 
 function Valuser() {
@@ -9,7 +8,7 @@ function Valuser() {
   const initialData = location.state?.data;
   const [scannedData, setScannedData] = useState(initialData ? [initialData] : []);
   const [editedData, setEditedData] = useState(null); // State to hold edited data temporarily
-  const [openModal, setOpenModal] = useState(false); // State to control modal visibility
+  const [showModal, setShowModal] = useState(false); // State to control modal visibility
 
   useEffect(() => {
     const checksRef = collection(db, 'checks');
@@ -28,23 +27,43 @@ function Valuser() {
     return () => unsubscribe();
   }, [scannedData]);
 
+  // Function to handle click on an item to open edit modal
   const handleEdit = (data) => {
-    setEditedData(data);
-    setOpenModal(true);
+  
+    setEditedData(data); // Set the data to be edited in state
+    setShowModal(true); // Show the edit modal
   };
 
+  // Function to handle closing the edit modal
   const handleCloseModal = () => {
-    setOpenModal(false);
-    setEditedData(null);
+    setShowModal(false); // Close the edit modal
+    setEditedData(null); // Clear edited data
   };
 
+  // Function to handle saving edited data
   const handleSave = async () => {
     if (editedData) {
       const docRef = doc(db, 'checks', editedData.uid);
       await updateDoc(docRef, editedData); // Update the document in Firestore
-      setOpenModal(false);
-      setEditedData(null);
+      setShowModal(false); // Close the modal after saving
+      setEditedData(null); // Clear edited data after saving
     }
+  };
+
+  // Function to handle changes in input fields
+  const handleChange = (e, field) => {
+    const newValue = e.target.value;
+    setEditedData(prevData => ({
+      ...prevData,
+      [field]: newValue
+    }));
+  };
+
+  // Function to handle image change
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    // Handle image upload and update editedData with new image URL
+    // Example: Upload to Firebase Storage and update editedData.image with the new URL
   };
 
   return (
@@ -69,13 +88,23 @@ function Valuser() {
         )}
       </div>
 
-      {/* Render the EditModal component */}
-      <EditModal
-        open={openModal}
-        onClose={handleCloseModal}
-        onSave={handleSave}
-        data={editedData}
-      />
+      {/* Edit Modal */}
+      {editedData && (
+        <div className={`edit-modal ${showModal ? 'active' : ''}`}>
+          <div className='modal-content'>
+            <span className='close' onClick={handleCloseModal}>&times;</span>
+            <h2>Edit User Details</h2>
+            <label>Name: <input type="text" value={editedData.name} onChange={(e) => handleChange(e, 'name')} /></label>
+            <label>Email: <input type="email" value={editedData.email} onChange={(e) => handleChange(e, 'email')} /></label>
+            <label>Occupation: <input type="text" value={editedData.occupation} onChange={(e) => handleChange(e, 'occupation')} /></label>
+            <label>Office: <input type="text" value={editedData.office} onChange={(e) => handleChange(e, 'office')} /></label>
+            <label>Phone Number: <input type="tel" value={editedData.phonenumber} onChange={(e) => handleChange(e, 'phonenumber')} /></label>
+            {/* Input for changing image */}
+            <label>Change Image: <input type="file" accept="image/*" onChange={handleImageChange} /></label>
+            <button onClick={handleSave}>Save Changes</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -6,8 +6,8 @@
     margin-top: 5%;
     place-items: center;
     display: flex;
-    background-color: rgba(235, 230, 230, 0.61);
-    border-radius: 2%;
+    background-color: gray;
+    border-radius: 7%;
 }
 
 .card-holder:hover{

@@ -6,12 +6,10 @@
     margin-top: 5%;
     place-items: center;
     display: flex;
-    background-color: rgba(235, 230, 230, 0.61);
-    border-radius: 2%;
 }
 
 .card-holder:hover{
-    cursor: pointer;
+    
 }
 
 .card-right-side{
