@@ -1,0 +1,27 @@
+body {
+  margin: 0;
+  font-family: "WF Visual Sans","Tanker Regular";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+
+
+p{
+  width: max-content;
+  margin: 0 !important;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+
+.mirror-page{
+  background-image: url("./media/bgg.png");
+}
+
+
+.tech-background{}

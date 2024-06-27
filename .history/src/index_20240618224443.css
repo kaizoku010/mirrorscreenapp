@@ -1,0 +1,37 @@
+body {
+  margin: 0;
+  font-family: "WF Visual Sans","Tanker Regular";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+
+p{
+  width: max-content;
+  margin: 0 !important;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+
+
+useEffect(() => {
+  const checksRef = collection(db, 'checks');
+  const unsubscribe = onSnapshot(checksRef, (snapshot) => {
+    snapshot.docChanges().forEach((change) => {
+      if (change.type === 'added') {
+        const newCheck = change.doc.data();
+        console.log('New check-in data: ', newCheck);
+        if (!scannedData.find(item => item.uid === newCheck.uid)) {
+          setScannedData(prevData => [...prevData, newCheck]);
+        }
+      }
+    });
+  });
+
+  return () => unsubscribe();
+}, [scannedData]);
