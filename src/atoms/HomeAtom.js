@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CircularRevealPanel } from 'react-circular-reveal';
 import PrintMe from './PrintMe';
-import { db, collection, onSnapshot } from '../operations/firebase';
+import { dynamoDB } from '../operations/aws-config';
 import { Modal, Box, Typography, Button } from '@mui/material';
 import "./homeAtom.css";
 import Logo from "../media/ll.gif";
@@ -22,6 +22,7 @@ const modalStyle = {
 function HomeAtom({ passcode }) {
   const [isOpened, setOpened] = useState(false);
   const [code, setCode] = useState('');
+
   const [checkedInIds, setCheckedInIds] = useState(new Set());
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
@@ -42,28 +43,35 @@ function HomeAtom({ passcode }) {
   };
 
   useEffect(() => {
+    // console.log('Fetching data from DynamoDB...');
+
     if (passcode?.meta) {
       const object = passcode.meta.toString();
       setCode(object);
     }
 
-    const checksRef = collection(db, 'checks');
-    const unsubscribe = onSnapshot(checksRef, (snapshot) => {
-      snapshot.docChanges().forEach((change) => {
-        if (change.type === 'added') {
-          const newCheck = change.doc.data();
-          console.log('New check-in data: ', newCheck);
+    const fetchChecks = async () => {
+      try {
+        const params = {
+          // TableName: 'checks'
+          TableName: 'attendees',
+        };
+        const data = await dynamoDB.scan(params).promise();
+        console.log('Fetched data:', data); // Log the fetched data
+        data.Items.forEach(newCheck => {
           if (!checkedInIds.has(newCheck.id)) {
             navigate('/validate', { state: { data: newCheck } });
             setCheckedInIds(prevIds => new Set([...prevIds, newCheck.uid]));
           } else {
             console.log(`Attendee ${newCheck.name} with ID ${newCheck.uid} is already checked in.`);
           }
-        }
-      });
-    });
+        });
+      } catch (error) {
+        console.error('Error fetching check-ins', error);
+      }
+    };
 
-    return () => unsubscribe();
+    fetchChecks();
   }, [passcode, navigate, checkedInIds]);
 
   return (
@@ -79,12 +87,11 @@ function HomeAtom({ passcode }) {
         <div className='home-page content'>
           <div className='text-holder'>
             <div className='logo-holder'> 
-              <img className='skip' src={Logo}/>
+              <img className='skip' src={Logo} alt="Logo"/>
             </div>
             <div className='text-holder_'>
               <button className='start-here' onClick={handleModalOpen}>Start Here</button>
               <button className='no-id2' onClick={handleButtonClick2} variant="contained" sx={{ mt: 2 }}>Book Appointment</button>
-
             </div>
           </div>
         </div>

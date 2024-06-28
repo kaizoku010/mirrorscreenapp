@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Modal, Box, Button, TextField } from '@mui/material';
-import { db, collection, onSnapshot, doc, setDoc, ref, uploadBytes, getDownloadURL, storage } from '../operations/firebase'; // Adjust firebase imports as per your setup
+//import { db, collection, onSnapshot, doc, setDoc, ref, uploadBytes, getDownloadURL, storage } from '../operations/firebase'; // Adjust firebase imports as per your setup
+import { dynamoDB, s3 } from '../operations/aws-config';
+
 import { v4 as uuidv4 } from 'uuid';
 import QRCode from "react-qr-code";
 import './valuser.css';
@@ -27,24 +29,26 @@ function Valuser() {
   const printRef = useRef();
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, 'checks'), (snapshot) => {
-      const newData = [];
-      snapshot.forEach((doc) => {
-        const data = { id: doc.id, ...doc.data() };
-        if (!newData.some(item => item.id === data.id)) {
-          newData.push(data);
-        }
-      });
-      setScannedData(newData);
-    });
-
-    return () => unsubscribe();
+    const fetchChecks = async () => {
+      try {
+        const params = {
+          TableName: 'attendees'
+        };
+        const data = await dynamoDB.scan(params).promise();
+        const newData = data.Items;
+        setScannedData(newData);
+      } catch (error) {
+        console.error('Error fetching check-ins', error);
+      }
+    };
+    fetchChecks();
   }, []);
 
   const handleEdit = (data) => {
+    console.log('Editing data:', data); // Log the data being edited
     setEditedData(data);
     setEditedUser({
-      id: data.id || '',
+      uid: data.uid || '', // Use uid instead of id
       name: data.name || '',
       email: data.email || '',
       job: data.occupation || '',
@@ -59,7 +63,7 @@ function Valuser() {
   const handleCloseModal = () => {
     setOpenModal(false);
     setEditedUser({
-      id: '',
+      uid: '',
       name: '',
       email: '',
       job: '',
@@ -84,12 +88,16 @@ function Valuser() {
     if (imageFile) {
       const imageFileName = `${uuidv4()}-${imageFile.name}`;
       try {
-        const storageRef = ref(storage, `/images/${imageFileName}`);
-        await uploadBytes(storageRef, imageFile);
-        const downloadURL = await getDownloadURL(storageRef);
+        const params = {
+          Bucket: 'your-bucket-name',
+          Key: `images/${imageFileName}`,
+          Body: imageFile,
+          ACL: 'public-read'
+        };
+        const upload = await s3.upload(params).promise();
         setEditedUser(prevUser => ({
           ...prevUser,
-          image: downloadURL,
+          image: upload.Location
         }));
       } catch (error) {
         console.error('Error uploading image:', error);
@@ -144,15 +152,22 @@ function Valuser() {
     }
   };
 
+
   const handleSave = async () => {
-    if (editedUser.id) {
-      const docRef = doc(db, 'checks', editedUser.id);
+    if (editedUser.uid) {
+      console.log('Saving user:', editedUser); // Log the user data before saving
+      const params = {
+        //TableName: 'checks',
+        TableName: 'attendees',
+        Item: { ...editedUser }
+      };
       try {
-        await setDoc(docRef, { ...editedUser });
+        await dynamoDB.put(params).promise();
+        console.log('User saved successfully');
         setOpenModal(false);
         setEditedData(null);
         setEditedUser({
-          id: '',
+          uid: '',
           name: '',
           email: '',
           job: '',
@@ -164,8 +179,12 @@ function Valuser() {
         console.error('Error setting document:', error);
         alert('Failed to set document: ' + error.message);
       }
+    } else {
+      console.error('Edited user ID');
     }
   };
+
+
 
   const handlePrint = () => {
     const content = printRef.current.innerHTML;
@@ -180,7 +199,7 @@ function Valuser() {
       <div className="card-data">
         {scannedData.length > 0 ? (
           scannedData.map(data => (
-            <div key={data.id} className="card-holder" onClick={() => handleEdit(data)}>
+            <div key={data.uid} className="card-holder" onClick={() => handleEdit(data)}>
               <img className="user-image" src={data.image} alt="Attendee" />
               <div className="card-right-side">
                 <p><strong className='user_details'>{data.name}</strong></p>
