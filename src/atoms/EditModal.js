@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Box, Button, TextField } from '@mui/material';
-import { ref, uploadBytes, getDownloadURL, storage } from '../operations/firebase'; // Adjust Firebase imports as per your setup
 import { v4 as uuidv4 } from 'uuid';
+import { Storage } from 'aws-sdk'; // Adjust AWS SDK
+
+const s3 = new Storage({
+  // Configure AWS S3 credentials and region
+  region: 'us-east-1', 
+  accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.REACT_APP_AWS_SECRET_ACCESS_KEY
+});
 
 const EditModal = ({ open, onClose, onSave, data }) => {
   const [editedUser, setEditedUser] = useState({
@@ -41,13 +48,23 @@ const EditModal = ({ open, onClose, onSave, data }) => {
 
     if (imageFile) {
       const imageFileName = `${uuidv4()}-${imageFile.name}`;
+
       try {
-        const storageRef = ref(storage, `/images/${imageFileName}`);
-        await uploadBytes(storageRef, imageFile);
-        const downloadURL = await getDownloadURL(storageRef);
+        // Upload image to AWS S3
+        const uploadParams = {
+          Bucket: 'moxieeventsbucket',
+          Key: `images/${imageFileName}`,
+          Body: imageFile,
+          ACL: 'public-read', // Optional: Adjust permissions as needed
+        };
+        const data = await s3.upload(uploadParams).promise();
+
+        // Get image URL from S3
+        const imageURL = data.Location;
+
         setEditedUser((prevUser) => ({
           ...prevUser,
-          image: downloadURL,
+          image: imageURL,
         }));
       } catch (error) {
         console.error('Error uploading image:', error);
@@ -58,7 +75,15 @@ const EditModal = ({ open, onClose, onSave, data }) => {
   };
 
   const handleSave = () => {
-    onSave(editedUser);
+    console.log('Save button clicked'); // Check if the button click is logged
+    console.log('Edited user:', editedUser); // Check the editedUser state
+    try {
+      console.log('Save button clicked'); // Check if the button click is logged
+      console.log('Edited user:', editedUser); // Check the editedUser state
+      onSave(editedUser); // Ensure onSave function is invoked with correct data
+    } catch (error) {
+      console.error('Error saving user:', error); // Log any errors that occur during save
+    }
   };
 
   return (
